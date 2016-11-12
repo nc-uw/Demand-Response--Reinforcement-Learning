@@ -1,5 +1,6 @@
+%hey
 %sample of 24hr electricty cost in cents
-run('tariff.m');
+run('rl_dsm_tariff.m');
 pi=randi(size(p_all,1),1);
 p = transpose(p_all(pi,:));
 p=[33.55	28.47	24.04	23.98	25.42	28.61	29.84	32.19	29.06	34.28	35.82	38.72	38.06	36.88	36.45	33.60	42.05	63.66	48.44	46.87	46.93	42.50	35.08	31.06]';

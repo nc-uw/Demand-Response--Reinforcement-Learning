@@ -1,64 +1,5 @@
 %sample of 24hr electricty cost in cents
-run('tariff.m');
-p_max=ceil(max(p_all(:)));
-
-%function 1 -
-    %create all possible on/off states over horizon period h for -
-    %h running time app_rt = (1,2,..h) combinations for 1 appliance
-h=24;
-maxx=9999;
-%create all possible on/off states over horizon period for all possible running time combinations
-app_states_all=cell(h,1);
-app_states_all{1}=eye(h,h);
-
-for i = 2:h
-    app_states_all{i}=eye(h-(i-1),h)+app_states_all{i-1}(2:end,:);
-end;
-
-%specify app data
-app_data = [0.72 3 24; 3.15 2 24; 3.18 3 24];
-%10.5 1 24; 5.5 3 24; 17 1 24; 0.72 3 24; 3.15 2 24; 3.18 3 24; 10.5 1 24];
-
-N = size(app_data,1);
-app_kwh = app_data(:,1);
-app_rt = app_data(:,2);
-app_reqt = app_data(:,3) - app_data(:,2) +1;
-kwh_max=p_max*max(app_kwh);
-
-for pi=1:1 %size(p_all,1)
-    
-    %p = transpose(p_all(pi,:));
-    p=[35.33	31.36	32.27	32.35	30.80	33.87	43.19	48.24	43.47	42.13	39.22	37.35	34.77	33.20	31.39	31.54	35.84	47.29	45.17	39.98	35.65	34.07	34.32	32.66]';
-    %extract possible on/off states for specified apps, proceed to derive
-    %kwh consumption and tarrif states
-    app_states = cell(N,1);
-    app_states_kwh = [];
-    for i = 1:N
-        app_states{i}=app_kwh(i).*app_states_all{app_rt(i)};
-        temp=app_states{i}*p;
-        app_states_kwh(:,i)=[temp ; zeros(h-size(temp,1),1)];
-    end;
-    %app_states_kwh(app_states_kwh==0) = maxx;
-
-    s = [0 1];
-    S = permn(s,N);
-    ST=[];
-
-    for i = 1:2^N
-        for j = 1:2^N;
-            x=find(S(i,:)==1);
-            y=find(S(j,:)==1);
-            if and(size(x,2)<size(y,2), ismember(x,y) == 1);
-                ST(i,j)=1;
-            else
-                ST(i,j)=0;
-            end;
-        end;
-    end;
-    ST(1,:)=ones(1,2^N);
-    ST(:,1)=zeros(2^N,1);
-%sample of 24hr electricty cost in cents
-run('tariff.m');
+run('rl_dsm_tariff.m');
 pi=randi(size(p_all,1),1);
 p = transpose(p_all(pi,:));
 p=[33.55	28.47	24.04	23.98	25.42	28.61	29.84	32.19	29.06	34.28	35.82	38.72	38.06	36.88	36.45	33.60	42.05	63.66	48.44	46.87	46.93	42.50	35.08	31.06]';
@@ -317,8 +258,7 @@ R=-1.*C;
     ylabel(ax(1),'Estimated Tariff (in Cents)');
     ylabel(ax(2),'Price per Hour (in Cents)');
     legend('Appliance 1', 'Appliance 2', 'Appliance 3', 'Appliance 4', 'Appliance 5', 'Appliance 6', 'Tariff per KWh: 1st Jan 2016', 'Location', 'northeast');
-pi    
-end;
+pi;
 
 figure
 plot(1:iter-1,sum(pol_tariff(:,1:iter-1)));
